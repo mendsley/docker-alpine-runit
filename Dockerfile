@@ -1,12 +1,12 @@
 FROM alpine
 MAINTAINER Matthew Endsley <mendsley@gmail.com>
 
-ENV RUNIT_VERSION="2.1.2" \
-	RUNIT_DOWNLOAD_URL="http://smarden.org/runit/runit-2.1.2.tar.gz" \
-	RUNIT_DOWNLOAD_SHA1="398f7bf995acd58797c1d4a7bcd75cc1fc83aa66"
 
 # Download and build redis
 RUN buildDeps='curl tar make gcc musl-dev' \
+	RUNIT_VERSION="2.1.2" \
+	RUNIT_DOWNLOAD_URL="http://smarden.org/runit/runit-2.1.2.tar.gz" \
+	RUNIT_DOWNLOAD_SHA1="398f7bf995acd58797c1d4a7bcd75cc1fc83aa66" \
 	&& set -x \
 	&& apk add --update $buildDeps \
 	&& curl -sSL "$RUNIT_DOWNLOAD_URL" -o runit.tar.gz \
@@ -22,10 +22,7 @@ RUN buildDeps='curl tar make gcc musl-dev' \
 	&& rm -rf /usr/src/runit \
 	&& apk del $buildDeps \
 	&& rm -rf /var/cache/apk/* \
-	&& mkdir /etc/service \
+	&& mkdir /service \
 	;
 
-COPY docker-entry-point.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["runsvdir", "-P", "-H", "/etc/service"]
+CMD ["sh", "-c", "exec runsvdir -P /service/"]
